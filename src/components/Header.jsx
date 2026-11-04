@@ -1,18 +1,29 @@
 import { Link } from 'react-router-dom';
 
-export default function Header({ cartCount }) {
+export default function Header({ cartCount = 0, wishlistCount = 0 }) {
   return (
-    <header className="bg-slate-900 text-white p-4 flex justify-between items-center shadow-lg">
-      <h1 className="text-xl font-bold text-blue-400">My Website</h1>
-      <nav className="flex items-center gap-6">
-        <Link to="/" className="hover:text-blue-400 transition">Trang chủ</Link>
-        <Link to="/products" className="hover:text-blue-400 transition">Sản phẩm</Link>
-        <Link to="/contact" className="hover:text-blue-400 transition">Liên hệ</Link>
+    <header style={{ background: '#0f172a', color: 'white', padding: '15px 30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+      <Link to="/" style={{ fontSize: '22px', fontWeight: 'bold', color: 'white', textDecoration: 'none' }}>
+        🛍️ TechStore
+      </Link>
+
+      <nav style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+        <Link to="/" style={{ color: '#cbd5e1', textDecoration: 'none', fontWeight: '500' }}>Trang chủ</Link>
+        <Link to="/products" style={{ color: '#cbd5e1', textDecoration: 'none', fontWeight: '500' }}>Sản phẩm</Link>
+        <Link to="/contact" style={{ color: '#cbd5e1', textDecoration: 'none', fontWeight: '500' }}>Liên hệ</Link>
         
-        <Link to="/cart" className="bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg font-semibold text-sm flex items-center gap-2 transition">
-          🛒 Giỏ hàng
-          <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{cartCount || 0}</span>
+        {/* Link Yêu thích */}
+        <Link to="/wishlist" style={{ color: '#cbd5e1', textDecoration: 'none', fontWeight: '500', position: 'relative' }}>
+          ❤️ Yêu thích {wishlistCount > 0 && <span style={{ background: '#ef4444', color: 'white', borderRadius: '50%', padding: '2px 6px', fontSize: '12px', marginLeft: '4px' }}>{wishlistCount}</span>}
         </Link>
+
+        {/* Link Giỏ hàng */}
+        <Link to="/cart" style={{ background: '#2563eb', color: 'white', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>
+          🛒 Giỏ hàng ({cartCount})
+        </Link>
+        <Link to="/orders" style={{ color: '#cbd5e1', textDecoration: 'none', fontWeight: '500' }}>
+  📦 Đơn hàng
+</Link>
       </nav>
     </header>
   );

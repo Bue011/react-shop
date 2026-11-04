@@ -7,6 +7,9 @@ import Products from './pages/Products';
 import Contact from './pages/Contact';
 import Cart from './pages/Cart';
 import ProductDetail from './pages/ProductDetail';
+import Checkout from './pages/Checkout';
+import Wishlist from './pages/Wishlist';
+import Orders from './pages/Orders'; // Import trang Orders mới
 
 function App() {
   const [cartItems, setCartItems] = useState(() => {
@@ -14,10 +17,19 @@ function App() {
     return savedCart ? JSON.parse(savedCart) : [];
   });
 
-  // State quản lý thông báo nổi
+  const [wishlist, setWishlist] = useState(() => {
+    const savedWishlist = localStorage.getItem('wishlist');
+    return savedWishlist ? JSON.parse(savedWishlist) : [];
+  });
+
+  // State quản lý danh sách đơn hàng đã đặt
+  const [orders, setOrders] = useState(() => {
+    const savedOrders = localStorage.getItem('orders');
+    return savedOrders ? JSON.parse(savedOrders) : [];
+  });
+
   const [toastMessage, setToastMessage] = useState('');
 
-  // Hàm hiển thị thông báo tự động ẩn sau 2 giây
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => {
@@ -28,6 +40,32 @@ function App() {
   useEffect(() => {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
   }, [cartItems]);
+
+  useEffect(() => {
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+  }, [wishlist]);
+
+  useEffect(() => {
+    localStorage.setItem('orders', JSON.stringify(orders));
+  }, [orders]);
+
+  // Hàm thêm đơn hàng mới
+  const addOrder = (newOrder) => {
+    setOrders((prev) => [newOrder, ...prev]);
+  };
+
+  const toggleWishlist = (product) => {
+    setWishlist((prev) => {
+      const exists = prev.find((item) => item.id === product.id);
+      if (exists) {
+        showToast(`Đã xóa "${product.name}" khỏi mục yêu thích!`);
+        return prev.filter((item) => item.id !== product.id);
+      } else {
+        showToast(`Đã thêm "${product.name}" vào mục yêu thích ❤️`);
+        return [...prev, product];
+      }
+    });
+  };
 
   const addToCart = (product) => {
     setCartItems((prevItems) => {
@@ -73,34 +111,24 @@ function App() {
     <Router>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
         
-        {/* Toast Notification nổi ở góc phải màn hình */}
         {toastMessage && (
-          <div style={{ position: 'fixed', top: '20px', right: '20px', background: '#0f172a', color: 'white', padding: '12px 20px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 1000, fontWeight: 'bold', animation: 'fadeIn 0.3s' }}>
+          <div style={{ position: 'fixed', top: '20px', right: '20px', background: '#0f172a', color: 'white', padding: '12px 20px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 1000, fontWeight: 'bold' }}>
             {toastMessage}
           </div>
         )}
 
-        <Header cartCount={totalCartCount} />
+        <Header cartCount={totalCartCount} wishlistCount={wishlist.length} />
         
         <div style={{ flex: 1 }}>
           <Routes>
-            <Route path="/" element={<Home onAddToCart={addToCart} />} />
-            <Route path="/products" element={<Products onAddToCart={addToCart} />} />
+            <Route path="/" element={<Home onAddToCart={addToCart} onToggleWishlist={toggleWishlist} wishlist={wishlist} />} />
+            <Route path="/products" element={<Products onAddToCart={addToCart} onToggleWishlist={toggleWishlist} wishlist={wishlist} />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/product/:id" element={<ProductDetail onAddToCart={addToCart} />} />
-            <Route 
-              path="/cart" 
-              element={
-                <Cart 
-                  cartItems={cartItems} 
-                  onRemove={removeFromCart} 
-                  onIncrease={increaseQuantity}
-                  onDecrease={decreaseQuantity}
-                  onClearCart={clearCart}
-                  onShowToast={showToast}
-                />
-              } 
-            />
+            <Route path="/cart" element={<Cart cartItems={cartItems} onRemove={removeFromCart} onIncrease={increaseQuantity} onDecrease={decreaseQuantity} />} />
+            <Route path="/checkout" element={<Checkout cartItems={cartItems} onClearCart={clearCart} onAddOrder={addOrder} />} />
+            <Route path="/wishlist" element={<Wishlist wishlist={wishlist} onToggleWishlist={toggleWishlist} onAddToCart={addToCart} />} />
+            <Route path="/orders" element={<Orders orders={orders} />} />
           </Routes>
         </div>
 
